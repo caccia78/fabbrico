@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fabbrico: 3D design for FDM printing, with AI</title>
+  <meta name="description" content="Fabbrico is an open-source 3D design tool for FDM printing. You lay out simple shapes by hand; Claude does the hard parts and keeps the model printable." />
+  <meta property="og:title" content="Fabbrico" />
+  <meta property="og:description" content="Open-source 3D design for FDM printing. You lay out the shapes, AI does the hard parts." />
+  <meta property="og:image" content="https://caccia78.github.io/fabbrico/images/screenshot.png" />
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <style>
+    :root {
+      --bg: #f4f5f8;
+      --panel: #ffffff;
+      --line: #dde1e8;
+      --text: #1d2330;
+      --muted: #5f6779;
+      --accent: #2f6ae0;
+      --accent-soft: #e3ecfd;
+      --code-bg: #eceff4;
+      --shadow: 0 18px 50px rgba(20, 30, 60, 0.14);
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #14161b;
+        --panel: #1c1f26;
+        --line: #2e3340;
+        --text: #e6e8ee;
+        --muted: #9aa1b2;
+        --accent: #5b95ff;
+        --accent-soft: #1f2c47;
+        --code-bg: #232733;
+        --shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+      }
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+    a { color: var(--accent); }
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+    header.top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; color: var(--text); text-decoration: none; }
+    .brand svg { width: 22px; height: 22px; }
+    nav a { margin-left: 22px; color: var(--muted); text-decoration: none; font-size: 15px; }
+    nav a:hover { color: var(--text); }
+
+    .hero { text-align: center; padding-top: 56px; padding-bottom: 28px; }
+    .hero h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.1; margin: 0 0 18px; letter-spacing: -0.02em; }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+    .hero p.lead { font-size: clamp(18px, 2.4vw, 21px); color: var(--muted); max-width: 680px; margin: 0 auto 30px; }
+    .name-note { font-size: 14px; color: var(--muted); margin-top: 18px; }
+    .buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn { display: inline-block; padding: 12px 22px; border-radius: 10px; font-weight: 600; text-decoration: none; border: 1px solid var(--line); color: var(--text); background: var(--panel); }
+    .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn:hover { filter: brightness(1.06); }
+
+    .shot { margin: 36px auto 0; }
+    .shot img { width: 100%; height: auto; display: block; border-radius: 12px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+
+    section { padding: 64px 0 8px; }
+    section h2 { font-size: clamp(26px, 3.6vw, 34px); margin: 0 0 10px; letter-spacing: -0.01em; }
+    section > .wrap > p.sub { color: var(--muted); margin: 0 0 30px; max-width: 720px; }
+
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; counter-reset: step; }
+    .card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 22px; }
+    .card h3 { margin: 0 0 8px; font-size: 18px; }
+    .card p { margin: 0; color: var(--muted); font-size: 16px; }
+    .steps .card h3::before { counter-increment: step; content: counter(step); display: inline-grid; place-items: center; width: 28px; height: 28px; margin-right: 10px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-size: 15px; }
+
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .tag { display: inline-block; font-size: 13px; font-weight: 600; color: var(--accent); background: var(--accent-soft); padding: 2px 10px; border-radius: 99px; margin-bottom: 10px; }
+
+    pre { background: var(--code-bg); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; font-size: 15px; line-height: 1.5; margin: 0 0 14px; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    ol.start { padding-left: 22px; margin: 0; }
+    ol.start li { margin-bottom: 14px; }
+    .note { color: var(--muted); font-size: 15px; }
+
+    footer { margin-top: 72px; border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--muted); font-size: 15px; }
+    footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+    @media (max-width: 820px) {
+      .steps, .grid, .two { grid-template-columns: 1fr; }
+      nav a:not(.gh) { display: none; }
+      .hero { padding-top: 32px; }
+      section { padding-top: 48px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="wrap top">
+    <a class="brand" href="#"><svg viewBox="0 0 64 64" aria-hidden="true"><rect x="14" y="14" width="36" height="36" rx="5" transform="rotate(45 32 32)" fill="#4f8cff"/></svg>Fabbrico</a>
+    <nav>
+      <a href="#how">How it works</a>
+      <a href="#features">Features</a>
+      <a href="#start">Get started</a>
+      <a class="gh" href="https://github.com/caccia78/fabbrico">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="wrap hero">
+      <h1>You lay out the shapes.<br /><em>AI does the hard parts.</em></h1>
+      <p class="lead">Fabbrico is an open-source 3D design tool for FDM printing. Build the basics by hand,
+        then ask Claude for fillets, textures, organic forms and functional features, all
+        checked for printability before they reach your slicer.</p>
+      <div class="buttons">
+        <a class="btn primary" href="#start">Get started</a>
+        <a class="btn" href="https://github.com/caccia78/fabbrico">View on GitHub</a>
+      </div>
+      <p class="name-note"><em>Fabbrico</em>: Italian for “I make”.</p>
+      <figure class="shot">
+        <img src="images/screenshot.png" width="1800" height="1016" alt="Fabbrico: the scene list on the left, a pen cup, a twisted vase and a name tag in the 3D view, and the AI assistant connected to Claude Code on the right." />
+      </figure>
+    </div>
+
+    <section id="how">
+      <div class="wrap">
+        <h2>How it works</h2>
+        <p class="sub">Every change, including what the AI does, is an edit to a parametric scene, so
+          everything stays editable and every AI turn is a single undo step.</p>
+        <div class="steps">
+          <div class="card"><h3>Lay it out</h3><p>Boxes, cylinders, text, holes and groups, with exact
+            sizes in millimetres. Or trace the real object on an iPad with the Apple Pencil.</p></div>
+          <div class="card"><h3>Ask</h3><p>“Round the edges by 2 mm and add a knurled grip.” Claude
+            sees your selection and your view, edits the model, renders it and checks its own work.</p></div>
+          <div class="card"><h3>Print</h3><p>Overhang and wall-thickness maps, orient for print, then
+            export 3MF or send the plate straight to Bambu Studio, OrcaSlicer or PrusaSlicer.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="features">
+      <div class="wrap">
+        <h2>What's inside</h2>
+        <p class="sub">An early prototype, already useful for real parts.</p>
+        <div class="grid">
+          <div class="card"><h3>Precise and organic</h3><p>Primitives, extrusions, revolves, text,
+            imported meshes and smooth SDF shapes in one scene.</p></div>
+          <div class="card"><h3>Surface modifiers</h3><p>True fillets, chamfers, support-free teardrop
+            holes, knurl, ribs, waves, twist, taper and bend.</p></div>
+          <div class="card"><h3>Always watertight</h3><p>Booleans by the Manifold kernel, built in the
+            background so the interface never freezes.</p></div>
+          <div class="card"><h3>Tablet and phone</h3><p>Trace objects, draw dimensioned sketches, add
+            reference photos and notes, preview the plate in AR at real size.</p></div>
+          <div class="card"><h3>Images</h3><p>Turn pictures into reliefs, lithophanes or logos to
+            emboss or engrave.</p></div>
+          <div class="card"><h3>Learns from your prints</h3><p>A diary of print attempts and a library of
+            experiences (fits, tolerances) that the AI reuses next time.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="ai">
+      <div class="wrap">
+        <h2>Two ways to bring the AI</h2>
+        <p class="sub">Fabbrico has no server and no account. The AI is Claude, by Anthropic.</p>
+        <div class="two">
+          <div class="card"><span class="tag">Recommended</span><h3>Claude Code</h3><p>Use your Claude
+            Pro or Max subscription. Fabbrico includes an MCP bridge: run <code>claude</code> in the
+            project folder and talk to it in the terminal while you watch the model change.</p></div>
+          <div class="card"><span class="tag">Pay per use</span><h3>In-app chat</h3><p>Paste an Anthropic
+            API key in Settings. It stays in your browser and is sent only to Anthropic.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="start">
+      <div class="wrap">
+        <h2>Get started</h2>
+        <p class="sub">Runs on your computer, from source. A desktop app for macOS is on the way.</p>
+        <ol class="start">
+          <li>Install <a href="https://nodejs.org">Node.js</a> 20 or newer.</li>
+          <li>Download the <a href="https://github.com/caccia78/fabbrico/releases/latest">latest release</a>
+            (or clone the repository), then start it from its folder:
+            <pre><code>./start.sh</code></pre>
+            It installs what it needs and opens <code>http://localhost:5173</code> in your browser.
+            On Windows, run <code>npm install</code> and then <code>npm run dev</code> instead.</li>
+          <li>For the AI, run <code>claude</code> in the same folder (Claude Code), or add an API key in ⚙ Settings.</li>
+        </ol>
+        <p class="note">Works best in Chrome or Edge. Projects and settings stay on your computer.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>Fabbrico is open source under the MIT License.</span>
+      <span><a href="https://github.com/caccia78/fabbrico">GitHub</a> · <a href="https://github.com/caccia78/fabbrico/issues">Report an issue</a> · <a href="https://github.com/caccia78/fabbrico/blob/main/CHANGELOG.md">Changelog</a></span>
+    </div>
+  </footer>
+</body>
+</html>

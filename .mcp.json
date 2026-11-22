@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "fabbrico": {
+      "command": "npx",
+      "args": ["tsx", "bridge/server.ts"]
+    }
+  }
+}
